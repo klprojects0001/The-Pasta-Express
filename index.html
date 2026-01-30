@@ -75,30 +75,37 @@
             if (!isOpen) return null;
 
             const handleSubmit = async (e) => {
-                e.preventDefault();
-                setStatus('submitting');
+    e.preventDefault();
+    setStatus('submitting');
 
-                try {
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbwJx1gSxdB3D6i50fb6HTCG7gavJWmVbeCBu-TUleELY8AJRkvogCDG81gRIvds73sxTw/exec';
-                    
-                    // Convert formData into URL parameters for better compatibility with Apps Script
-                    const params = new URLSearchParams();
-                    Object.keys(formData).forEach(key => params.append(key, formData[key]));
+    try {
+        // REPLACE THIS URL with your actual Apps Script URL
+        const scriptURL = 'YOUR_APPS_SCRIPT_URL_HERE';
+        
+        // Create the query string
+        const params = new URLSearchParams({
+            name: formData.name,
+            date: formData.date,
+            time: formData.time,
+            guests: formData.guests,
+            remarks: formData.remarks
+        }).toString();
 
-                    await fetch(`${scriptURL}?${params.toString()}`, { 
-                        method: 'POST',
-                        mode: 'no-cors' 
-                    });
-                    
-                    setStatus('success');
-                    setFormData({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
-                    setTimeout(() => { setStatus('idle'); onClose(); }, 2500);
-                } catch (error) {
-                    console.error('Error!', error.message);
-                    alert('Something went wrong. Please try again.');
-                    setStatus('idle');
-                }
-            };
+        // Send as a GET request - much more reliable for Google Sheets
+        await fetch(`${scriptURL}?${params}`, { 
+            method: 'GET',
+            mode: 'no-cors' 
+        });
+        
+        setStatus('success');
+        setFormData({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
+        setTimeout(() => { setStatus('idle'); onClose(); }, 2500);
+    } catch (error) {
+        console.error('Error!', error.message);
+        alert('Something went wrong. Please try again.');
+        setStatus('idle');
+    }
+};
 
             const handleChange = (e) => {
                 const { name, value } = e.target;
