@@ -1,0 +1,7 @@
+{
+  "name": "The Pasta Express",
+  "description": "A modern, premium pasta restaurant booking experience featuring an AI-powered dish recommender and seamless reservation system.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
