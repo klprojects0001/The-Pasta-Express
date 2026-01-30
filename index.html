@@ -80,17 +80,17 @@
                 setStatus('submitting');
 
                 try {
-                    // Actual Google Apps Script Web App URL
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbxIXmt1xDIfAabASeQyYv8K_BhlVJ530jyZeyR9olG-hKMjvJZ7g-GjTXr9VQPSYNwZnA/exec';
+                    // UPDATED Google Apps Script Web App URL
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbymOg-S7XPFgA5begG8Z-M9gkLnqt3a2ERyunm93tsFdIN58e_8G7D507pcr_DfHjs95Q/exec';
                     
                     const formDataToSend = new FormData();
                     Object.keys(formData).forEach(key => formDataToSend.append(key, formData[key]));
 
-                    // Using no-cors to handle the potential redirect from Google Scripts
+                    // Using fetch with the new URL
                     await fetch(scriptURL, { 
                         method: 'POST', 
                         body: formDataToSend,
-                        mode: 'no-cors' 
+                        mode: 'no-cors' // Essential for Google Scripts to avoid CORS errors on redirect
                     });
                     
                     setStatus('success');
