@@ -13,26 +13,26 @@
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); } 50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); } }
         
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-bounce-slow { animation: bounce 2s infinite; }
 
         .modal-backdrop { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@1.38.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@1.38.0"
+      }
+    }
+    </script>
 </head>
 <body class="bg-[#faf9f6] text-slate-900">
     <div id="root"></div>
@@ -44,59 +44,96 @@
 
         // --- CONSTANTS ---
         const MENU_ITEMS = [
-            { id: '1', name: 'Truffle Arancini', description: 'Crispy risotto balls filled with wild mushroom and truffle oil.', price: '$14.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=600', tags: ['Vegetarian', 'Popular'] },
-            { id: '2', name: 'Classic Bruschetta', description: 'Toasted sourdough topped with heirloom tomatoes and aged balsamic.', price: '$12.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1572656631137-7935297eff55?auto=format&fit=crop&q=80&w=600' },
-            { id: '3', name: 'Pappardelle Bolognese', description: 'Wide ribbon pasta served with our signature 8-hour slow-cooked ragu.', price: '$26.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1598866594230-a1a1947057e1?auto=format&fit=crop&q=80&w=600', tags: ['Signature'] },
-            { id: '4', name: 'Lobster Ravioli', description: 'Hand-made ravioli stuffed with Atlantic lobster in saffron cream sauce.', price: '$34.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=600', tags: ['Premium'] },
-            { id: '5', name: 'Wild Mushroom Risotto', description: 'Creamy rice with porcini mushrooms, parmesan, and fresh herbs.', price: '$24.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=600', tags: ['Vegetarian'] },
-            { id: '6', name: 'Tiramisu Classico', description: 'Layers of espresso-soaked ladyfingers and mascarpone cream.', price: '$10.00', category: 'Desserts', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&q=80&w=600' }
+            { id: '1', name: 'Truffle Arancini', description: 'Crispy risotto balls filled with wild mushroom and truffle oil, served with garlic aioli.', price: '$14.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=600', tags: ['Vegetarian', 'Popular'] },
+            { id: '2', name: 'Classic Bruschetta', description: 'Toasted sourdough topped with heirloom tomatoes, fresh basil, and aged balsamic glaze.', price: '$12.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1572656631137-7935297eff55?auto=format&fit=crop&q=80&w=600' },
+            { id: '3', name: 'Pappardelle Bolognese', description: 'Wide ribbon pasta served with our signature 8-hour slow-cooked beef and pork ragu.', price: '$26.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1598866594230-a1a1947057e1?auto=format&fit=crop&q=80&w=600', tags: ['Signature'] },
+            { id: '4', name: 'Lobster Ravioli', description: 'Hand-made ravioli stuffed with fresh Atlantic lobster in a saffron cream sauce.', price: '$34.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=600', tags: ['Premium'] },
+            { id: '5', name: 'Wild Mushroom Risotto', description: 'Creamy carnaroli rice with porcini mushrooms, parmesan, and fresh herbs.', price: '$24.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=600', tags: ['Vegetarian', 'Gluten-Free'] },
+            { id: '6', name: 'Cacio e Pepe', description: 'Simple and elegant. Spaghetti with Pecorino Romano and toasted black peppercorns.', price: '$22.00', category: 'Mains', image: 'https://images.unsplash.com/photo-1551811635-be29c36743f6?auto=format&fit=crop&q=80&w=600' },
+            { id: '7', name: 'Tiramisu Classico', description: 'Layers of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa.', price: '$10.00', category: 'Desserts', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&q=80&w=600' },
+            { id: '8', name: 'Limoncello Sorbet', description: 'Refreshing house-made lemon sorbet with a hint of organic mint.', price: '$8.00', category: 'Desserts', image: 'https://images.unsplash.com/photo-1534313314376-a72289b6181e?auto=format&fit=crop&q=80&w=600' }
         ];
 
         // --- COMPONENTS ---
 
         const ReservationModal = ({ isOpen, onClose }) => {
             const [status, setStatus] = useState('idle');
+            const [formData, setFormData] = useState({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
+
+            useEffect(() => {
+                if (isOpen) document.body.style.overflow = 'hidden';
+                else document.body.style.overflow = 'unset';
+            }, [isOpen]);
+
             if (!isOpen) return null;
 
             const handleSubmit = (e) => {
                 e.preventDefault();
                 setStatus('submitting');
+                // Simulate booking logic
                 setTimeout(() => {
                     setStatus('success');
+                    setFormData({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
                     setTimeout(() => { setStatus('idle'); onClose(); }, 2500);
                 }, 1500);
             };
+
+            const handleChange = (e) => setFormData({...formData, [e.target.name]: e.target.value});
 
             return (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 modal-backdrop animate-fade-in" onClick={() => status !== 'submitting' && onClose()} />
                     <div className="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-slide-up flex flex-col md:flex-row">
                         <div className="hidden md:flex md:w-1/3 bg-amber-900 p-8 text-white flex-col justify-between">
-                            <h2 className="text-3xl font-serif">Reserve a Table</h2>
-                            <p className="text-amber-100/70 text-sm italic">"Authentic Italian, right in your neighborhood."</p>
-                            <div className="text-xs text-amber-100/50">Mon-Sun: 11:30 - 23:00</div>
+                            <div>
+                                <h2 className="text-3xl font-serif mb-4 leading-tight">Reserve a Table</h2>
+                                <p className="text-amber-100/70 text-sm italic">"Simple pasta, local ingredients, pure passion."</p>
+                            </div>
+                            <div className="text-xs text-amber-100/50 space-y-2">
+                                <p>Mon-Fri: 11:30 - 22:00</p>
+                                <p>Sat-Sun: 10:00 - 23:30</p>
+                            </div>
                         </div>
                         <div className="flex-1 p-8 lg:p-12">
-                            <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                            <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-50">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
                             {status === 'success' ? (
-                                <div className="h-full flex flex-col items-center justify-center text-center py-10">
-                                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4"><svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div>
+                                <div className="h-full flex flex-col items-center justify-center text-center py-10 animate-fade-in">
+                                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <h3 className="text-2xl font-serif mb-2">Booking Confirmed!</h3>
-                                    <p className="text-slate-500">Grazie, we look forward to serving you.</p>
+                                    <p className="text-slate-500">Grazie! Your table is waiting for you.</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    <h3 className="text-2xl font-serif mb-6">Your Details</h3>
-                                    <input required placeholder="Full Name" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800" />
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <input required type="date" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800" />
-                                        <input required type="time" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800" />
+                                    <div className="mb-6">
+                                        <h3 className="text-2xl font-serif text-slate-900">Your Details</h3>
+                                        <p className="text-slate-500 text-sm">We'll save a spot for you and your guests.</p>
                                     </div>
-                                    <select className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800">
-                                        {[2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} Guests</option>)}
-                                    </select>
-                                    <button disabled={status === 'submitting'} className="w-full bg-amber-800 text-white py-4 rounded-xl font-bold hover:bg-amber-900 transition-all shadow-xl disabled:opacity-50">
-                                        {status === 'submitting' ? 'Processing...' : 'Confirm Booking'}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
+                                        <input required name="name" value={formData.name} onChange={handleChange} placeholder="Marco Rossi" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</label>
+                                            <input required name="date" type="date" value={formData.date} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</label>
+                                            <input required name="time" type="time" value={formData.time} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Guests</label>
+                                        <select name="guests" value={formData.guests} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm">
+                                            {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
+                                        </select>
+                                    </div>
+                                    <button disabled={status === 'submitting'} className="w-full bg-amber-800 text-white py-4 rounded-xl font-bold hover:bg-amber-900 transition-all shadow-xl hover:shadow-amber-200 disabled:opacity-50 mt-4">
+                                        {status === 'submitting' ? 'Confirming...' : 'Confirm Booking'}
                                     </button>
                                 </form>
                             )}
@@ -124,43 +161,52 @@
 
                 try {
                     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-                    const menuStr = JSON.stringify(MENU_ITEMS.map(m => m.name));
+                    const menuContext = JSON.stringify(MENU_ITEMS.map(m => ({ name: m.name, desc: m.description })));
                     const response = await ai.models.generateContent({
                         model: "gemini-3-flash-preview",
                         contents: userMsg,
                         config: {
-                            systemInstruction: `You are Pasta Buddy for 'The Pasta Express'. Use this menu: ${menuStr}. Recommend one dish enthusiastically and briefly.`,
+                            systemInstruction: `You are Pasta Buddy for 'The Pasta Express'. Use this menu: ${menuContext}. Enthusiastically recommend ONE dish based on user craving. Keep it brief.`,
                         }
                     });
                     setMessages(p => [...p, { role: 'model', text: response.text }]);
-                } catch {
-                    setMessages(p => [...p, { role: 'model', text: "I'm dreaming of pasta right now. Try our signature Bolognese!" }]);
+                } catch (e) {
+                    setMessages(p => [...p, { role: 'model', text: "I'm daydreaming about our Lobster Ravioli. It's truly a masterpiece!" }]);
                 } finally { setLoading(false); }
             };
 
             return (
                 <div className="fixed bottom-8 right-8 z-[100]">
                     {isOpen ? (
-                        <div className="bg-white w-[350px] h-[500px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-100 animate-slide-up">
+                        <div className="bg-white w-[350px] sm:w-[400px] h-[500px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-100 animate-slide-up">
                             <div className="bg-amber-800 p-4 text-white flex justify-between items-center">
-                                <span className="font-bold flex items-center gap-2">🍝 Pasta Buddy</span>
-                                <button onClick={() => setIsOpen(false)}><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl">🍝</div>
+                                    <div>
+                                        <h3 className="font-bold leading-tight">Pasta Buddy</h3>
+                                        <p className="text-[10px] text-amber-200 uppercase tracking-widest">AI Concierge</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-2 rounded-full transition-colors"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                             </div>
                             <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50">
                                 {messages.map((m, i) => (
                                     <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user' ? 'bg-amber-800 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'}`}>{m.text}</div>
+                                        <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-amber-800 text-white rounded-tr-none shadow-md' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none shadow-sm'}`}>{m.text}</div>
                                     </div>
                                 ))}
-                                {loading && <div className="text-xs text-slate-400 animate-pulse">Pasta Buddy is thinking...</div>}
+                                {loading && <div className="text-xs text-slate-400 animate-pulse pl-2">Pasta Buddy is thinking...</div>}
                             </div>
                             <div className="p-4 bg-white border-t border-slate-100 flex gap-2">
-                                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="I want something spicy..." className="flex-grow px-4 py-2 bg-slate-100 rounded-xl text-sm border-none focus:ring-2 focus:ring-amber-800" />
-                                <button onClick={handleSend} className="bg-amber-800 text-white p-2 rounded-xl"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
+                                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Ask for a recommendation..." className="flex-grow px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-2 focus:ring-amber-800" />
+                                <button onClick={handleSend} disabled={loading} className="bg-amber-800 text-white p-3 rounded-xl hover:bg-amber-900 transition-colors disabled:opacity-50"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
                             </div>
                         </div>
                     ) : (
-                        <button onClick={() => setIsOpen(true)} className="bg-amber-800 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-3xl">🍝</button>
+                        <button onClick={() => setIsOpen(true)} className="bg-amber-800 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform group relative">
+                            <span className="text-3xl">🍝</span>
+                            <div className="absolute -top-12 right-0 bg-white text-slate-800 text-xs px-3 py-1.5 rounded-lg shadow-xl border border-slate-100 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Hungry? Ask me!</div>
+                        </button>
                     )}
                 </div>
             );
@@ -170,42 +216,65 @@
             const [isBookingOpen, setIsBookingOpen] = useState(false);
             const [activeTab, setActiveTab] = useState('Mains');
 
+            const scrollTo = (id) => {
+                const element = document.getElementById(id);
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+            };
+
             return (
                 <div className="min-h-screen">
                     {/* Navbar */}
                     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-100 h-20 flex items-center">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
-                            <span className="text-2xl font-bold font-serif text-amber-800">The Pasta Express</span>
+                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+                                <span className="text-2xl font-bold font-serif text-amber-800">The Pasta Express</span>
+                            </div>
                             <div className="hidden md:flex space-x-8 items-center">
-                                <a href="#menu" className="text-slate-600 hover:text-amber-800 font-medium">Menu</a>
-                                <a href="#about" className="text-slate-600 hover:text-amber-800 font-medium">Our Story</a>
-                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-amber-900 transition-all shadow-lg">Book a Table</button>
+                                <button onClick={() => scrollTo('menu')} className="text-slate-600 hover:text-amber-800 font-medium transition-colors">Menu</button>
+                                <button onClick={() => scrollTo('about')} className="text-slate-600 hover:text-amber-800 font-medium transition-colors">Our Story</button>
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-amber-900 transition-all shadow-lg hover:shadow-amber-200">Book a Table</button>
+                            </div>
+                            <div className="md:hidden">
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white p-2 px-4 rounded-full text-xs font-bold">Book</button>
                             </div>
                         </div>
                     </nav>
 
                     {/* Hero */}
                     <section className="relative h-screen flex items-center justify-center text-center px-4">
-                        <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover brightness-[0.4]" /></div>
-                        <div className="relative z-10 max-w-4xl">
-                            <span className="text-amber-400 font-semibold tracking-widest uppercase mb-4 block animate-fade-in">Hand-Crafted Since 2008</span>
+                        <div className="absolute inset-0 z-0">
+                            <img src="https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover brightness-[0.4]" alt="Hero Pasta" />
+                        </div>
+                        <div className="relative z-10 max-w-4xl mx-auto">
+                            <span className="text-amber-400 font-semibold tracking-widest uppercase mb-4 block animate-fade-in">Experience Authentic Italian</span>
                             <h1 className="text-5xl md:text-8xl font-serif text-white mb-8 leading-tight">Every Strand Tells a <span className="italic">Story</span></h1>
-                            <div className="flex gap-4 justify-center">
-                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-amber-700 transition-all shadow-xl">Book Now</button>
-                                <a href="#menu" className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition-all">View Menu</a>
+                            <p className="text-xl text-slate-200 mb-10 max-w-2xl mx-auto leading-relaxed">Hand-crafted pasta, locally sourced ingredients, and generations of secret family recipes brought to your table.</p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-amber-700 transition-all transform hover:scale-105 shadow-xl">Book a Table</button>
+                                <button onClick={() => scrollTo('menu')} className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition-all">View Menu</button>
                             </div>
+                        </div>
+                        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce-slow">
+                            <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                         </div>
                     </section>
 
                     {/* About Section */}
                     <section id="about" className="py-24 bg-white">
                         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-                            <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800" className="rounded-[3rem] shadow-2xl" />
+                            <div className="relative">
+                                <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800" className="rounded-[3rem] shadow-2xl" alt="Chef Rossi" />
+                                <div className="absolute -bottom-8 -right-8 bg-amber-800 text-white p-8 rounded-3xl shadow-xl hidden lg:block">
+                                    <p className="text-4xl font-serif font-bold">15+</p>
+                                    <p className="text-amber-200 text-sm font-semibold tracking-wider uppercase">Years of Passion</p>
+                                </div>
+                            </div>
                             <div>
                                 <span className="text-amber-800 font-bold uppercase tracking-widest text-sm mb-4 block">Our Story</span>
-                                <h2 className="text-4xl md:text-5xl font-serif mb-8">Tradition meets the modern plate.</h2>
-                                <p className="text-lg text-slate-600 mb-6">We use only four ingredients for our dough: double-zero flour, pasture-raised eggs, sea salt, and passion.</p>
-                                <button onClick={() => setIsBookingOpen(true)} className="text-amber-800 font-bold border-b-2 border-amber-800 pb-1">Reserve your experience →</button>
+                                <h2 className="text-4xl md:text-5xl font-serif mb-8 leading-tight">Tradition meets the modern plate.</h2>
+                                <p className="text-lg text-slate-600 mb-6 leading-relaxed">Founded in 2008 by Chef Marco Rossi, The Pasta Express began with a simple mission: to bring the authentic, sun-drenched flavors of Southern Italy to the local neighborhood.</p>
+                                <p className="text-lg text-slate-600 mb-10 leading-relaxed">We believe that the best pasta is simple pasta. That's why we use only four ingredients for our dough: double-zero flour, pasture-raised eggs, sea salt, and passion.</p>
+                                <button onClick={() => setIsBookingOpen(true)} className="text-amber-800 font-bold border-b-2 border-amber-800 pb-1 hover:text-amber-900 hover:border-amber-900 transition-colors">Reserve your experience →</button>
                             </div>
                         </div>
                     </section>
@@ -213,23 +282,30 @@
                     {/* Menu Section */}
                     <section id="menu" className="py-24 bg-[#faf9f6]">
                         <div className="max-w-7xl mx-auto px-4 text-center">
-                            <h2 className="text-4xl md:text-5xl font-serif mb-12">Our Seasonal Menu</h2>
-                            <div className="flex justify-center gap-4 mb-16 overflow-x-auto hide-scrollbar">
+                            <h2 className="text-4xl md:text-5xl font-serif mb-4">Our Seasonal Menu</h2>
+                            <div className="w-24 h-1 bg-amber-600 mx-auto rounded-full mb-12"></div>
+                            
+                            <div className="flex justify-center gap-4 mb-16 overflow-x-auto hide-scrollbar pb-2">
                                 {['Starters', 'Mains', 'Desserts'].map(cat => (
-                                    <button key={cat} onClick={() => setActiveTab(cat)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === cat ? 'bg-amber-800 text-white shadow-xl' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>{cat}</button>
+                                    <button key={cat} onClick={() => setActiveTab(cat)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === cat ? 'bg-amber-800 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'}`}>{cat}</button>
                                 ))}
                             </div>
-                            <div className="grid md:grid-cols-2 gap-8 text-left">
+
+                            <div className="grid md:grid-cols-2 gap-12 text-left">
                                 {MENU_ITEMS.filter(i => i.category === activeTab).map(item => (
-                                    <div key={item.id} className="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow flex gap-6">
-                                        <img src={item.image} className="w-24 h-24 rounded-2xl object-cover" />
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <h3 className="text-xl font-serif font-bold">{item.name}</h3>
-                                                <span className="text-amber-800 font-bold">{item.price}</span>
+                                    <div key={item.id} className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-lg transition-all flex flex-col sm:flex-row gap-6 group">
+                                        <div className="sm:w-40 sm:h-40 h-48 w-full overflow-hidden rounded-2xl flex-shrink-0">
+                                            <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={item.name} />
+                                        </div>
+                                        <div className="flex-grow flex flex-col justify-center">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h3 className="text-2xl font-serif font-bold text-slate-900">{item.name}</h3>
+                                                <span className="text-xl font-bold text-amber-800">{item.price}</span>
                                             </div>
-                                            <p className="text-slate-500 text-sm leading-relaxed mb-2">{item.description}</p>
-                                            {item.tags?.map(t => <span key={t} className="text-[10px] bg-amber-50 text-amber-700 px-2 py-1 rounded-md font-bold mr-2 uppercase">{t}</span>)}
+                                            <p className="text-slate-500 text-sm leading-relaxed mb-4">{item.description}</p>
+                                            <div className="flex gap-2">
+                                                {item.tags?.map(t => <span key={t} className="text-[10px] bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">{t}</span>)}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -237,9 +313,19 @@
                         </div>
                     </section>
 
-                    <footer className="bg-slate-900 py-16 text-slate-400 text-center">
-                        <h3 className="text-2xl font-serif text-white mb-6">The Pasta Express</h3>
-                        <p className="text-sm">© {new Date().getFullYear()} The Pasta Express. Crafted with love.</p>
+                    {/* Footer */}
+                    <footer className="bg-slate-900 py-20 text-slate-400 text-center">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <h3 className="text-3xl font-serif text-white mb-6">The Pasta Express</h3>
+                            <div className="flex justify-center space-x-8 mb-10">
+                                <a href="#" className="hover:text-white transition-colors">Instagram</a>
+                                <a href="#" className="hover:text-white transition-colors">Facebook</a>
+                                <a href="#" className="hover:text-white transition-colors">TripAdvisor</a>
+                            </div>
+                            <div className="border-t border-slate-800 pt-10">
+                                <p className="text-sm">© {new Date().getFullYear()} The Pasta Express. Locally sourced, hand-crafted with love.</p>
+                            </div>
+                        </div>
                     </footer>
 
                     <ReservationModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
