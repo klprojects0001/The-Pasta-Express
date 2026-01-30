@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pasta Express | Authentic Italian Hand-Crafted Pasta</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
@@ -22,27 +23,35 @@
         .modal-backdrop { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@19.0.0",
-        "react-dom": "https://esm.sh/react-dom@19.0.0",
-        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-        "@google/genai": "https://esm.sh/@google/genai@1.38.0"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.38.0",
+    "react/": "https://esm.sh/react@^19.2.4/"
+  }
+}
+</script>
 </head>
 <body class="bg-[#faf9f6] text-slate-900">
     <div id="root"></div>
 
-    <script type="module">
+    <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
         import { GoogleGenAI } from "@google/genai";
 
-        // --- CONSTANTS ---
+        // --- DATA ---
         const MENU_ITEMS = [
             { id: '1', name: 'Truffle Arancini', description: 'Crispy risotto balls filled with wild mushroom and truffle oil, served with garlic aioli.', price: '$14.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=600', tags: ['Vegetarian', 'Popular'] },
             { id: '2', name: 'Classic Bruschetta', description: 'Toasted sourdough topped with heirloom tomatoes, fresh basil, and aged balsamic glaze.', price: '$12.00', category: 'Starters', image: 'https://images.unsplash.com/photo-1572656631137-7935297eff55?auto=format&fit=crop&q=80&w=600' },
@@ -67,10 +76,9 @@
 
             if (!isOpen) return null;
 
-            const handleSubmit = (e) => {
+            const handleSubmit = async (e) => {
                 e.preventDefault();
                 setStatus('submitting');
-                // Simulate booking logic
                 setTimeout(() => {
                     setStatus('success');
                     setFormData({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
@@ -103,32 +111,32 @@
                                     <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
                                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                                     </div>
-                                    <h3 className="text-2xl font-serif mb-2">Booking Confirmed!</h3>
+                                    <h3 className="text-2xl font-serif mb-2 font-bold">Booking Confirmed!</h3>
                                     <p className="text-slate-500">Grazie! Your table is waiting for you.</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="mb-6">
-                                        <h3 className="text-2xl font-serif text-slate-900">Your Details</h3>
+                                        <h3 className="text-2xl font-serif text-slate-900 font-bold">Your Details</h3>
                                         <p className="text-slate-500 text-sm">We'll save a spot for you and your guests.</p>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
-                                        <input required name="name" value={formData.name} onChange={handleChange} placeholder="Marco Rossi" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                        <input required name="name" value={formData.name} onChange={handleChange} placeholder="Marco Rossi" className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</label>
-                                            <input required name="date" type="date" value={formData.date} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                            <input required name="date" type="date" value={formData.date} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</label>
-                                            <input required name="time" type="time" value={formData.time} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm" />
+                                            <input required name="time" type="time" value={formData.time} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none" />
                                         </div>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Guests</label>
-                                        <select name="guests" value={formData.guests} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm">
+                                        <select name="guests" value={formData.guests} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none">
                                             {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
                                         </select>
                                     </div>
@@ -143,7 +151,7 @@
             );
         };
 
-        const AiConcierge = () => {
+        const AiAssistant = () => {
             const [isOpen, setIsOpen] = useState(false);
             const [messages, setMessages] = useState([{ role: 'model', text: 'Ciao! I am Pasta Buddy. What kind of flavors are you craving today?' }]);
             const [input, setInput] = useState('');
@@ -166,12 +174,12 @@
                         model: "gemini-3-flash-preview",
                         contents: userMsg,
                         config: {
-                            systemInstruction: `You are Pasta Buddy for 'The Pasta Express'. Use this menu: ${menuContext}. Enthusiastically recommend ONE dish based on user craving. Keep it brief.`,
+                            systemInstruction: `You are 'Pasta Buddy', the AI concierge for 'The Pasta Express'. Use this menu: ${menuContext}. Enthusiastically recommend ONE dish based on user craving. Keep it brief.`,
                         }
                     });
                     setMessages(p => [...p, { role: 'model', text: response.text }]);
                 } catch (e) {
-                    setMessages(p => [...p, { role: 'model', text: "I'm daydreaming about our Lobster Ravioli. It's truly a masterpiece!" }]);
+                    setMessages(p => [...p, { role: 'model', text: "I'm daydreaming about our signature Pappardelle Bolognese. It's truly a masterpiece!" }]);
                 } finally { setLoading(false); }
             };
 
@@ -195,10 +203,18 @@
                                         <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-amber-800 text-white rounded-tr-none shadow-md' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none shadow-sm'}`}>{m.text}</div>
                                     </div>
                                 ))}
-                                {loading && <div className="text-xs text-slate-400 animate-pulse pl-2">Pasta Buddy is thinking...</div>}
+                                {loading && (
+                                    <div className="flex justify-start">
+                                        <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-2">
+                                            <div className="w-1.5 h-1.5 bg-amber-200 rounded-full animate-bounce"></div>
+                                            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce delay-100"></div>
+                                            <div className="w-1.5 h-1.5 bg-amber-600 rounded-full animate-bounce delay-200"></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="p-4 bg-white border-t border-slate-100 flex gap-2">
-                                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Ask for a recommendation..." className="flex-grow px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-2 focus:ring-amber-800" />
+                                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Ask for a recommendation..." className="flex-grow px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-2 focus:ring-amber-800 outline-none" />
                                 <button onClick={handleSend} disabled={loading} className="bg-amber-800 text-white p-3 rounded-xl hover:bg-amber-900 transition-colors disabled:opacity-50"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
                             </div>
                         </div>
@@ -222,89 +238,94 @@
             };
 
             return (
-                <div className="min-h-screen">
+                <div className="min-h-screen bg-[#faf9f6]">
                     {/* Navbar */}
-                    <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-100 h-20 flex items-center">
+                    <nav className="fixed top-0 left-0 right-0 glass z-50 h-20 flex items-center">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
                             <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-                                <span className="text-2xl font-bold font-serif text-amber-800">The Pasta Express</span>
+                                <span className="text-2xl font-bold font-serif text-amber-800 tracking-tight">The Pasta Express</span>
                             </div>
-                            <div className="hidden md:flex space-x-8 items-center">
-                                <button onClick={() => scrollTo('menu')} className="text-slate-600 hover:text-amber-800 font-medium transition-colors">Menu</button>
-                                <button onClick={() => scrollTo('about')} className="text-slate-600 hover:text-amber-800 font-medium transition-colors">Our Story</button>
-                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-amber-900 transition-all shadow-lg hover:shadow-amber-200">Book a Table</button>
+                            <div className="hidden md:flex space-x-10 items-center">
+                                <button onClick={() => scrollTo('menu')} className="text-slate-600 hover:text-amber-800 font-semibold transition-colors">Menu</button>
+                                <button onClick={() => scrollTo('about')} className="text-slate-600 hover:text-amber-800 font-semibold transition-colors">Our Story</button>
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white px-8 py-3 rounded-full font-bold hover:bg-amber-900 transition-all shadow-lg hover:shadow-amber-200">Book a Table</button>
                             </div>
                             <div className="md:hidden">
-                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white p-2 px-4 rounded-full text-xs font-bold">Book</button>
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-800 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest">Book</button>
                             </div>
                         </div>
                     </nav>
 
                     {/* Hero */}
-                    <section className="relative h-screen flex items-center justify-center text-center px-4">
-                        <div className="absolute inset-0 z-0">
+                    <section className="relative h-screen flex items-center justify-center text-center px-4 overflow-hidden">
+                        <div className="absolute inset-0 z-0 scale-105 transition-transform duration-1000">
                             <img src="https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover brightness-[0.4]" alt="Hero Pasta" />
                         </div>
                         <div className="relative z-10 max-w-4xl mx-auto">
-                            <span className="text-amber-400 font-semibold tracking-widest uppercase mb-4 block animate-fade-in">Experience Authentic Italian</span>
-                            <h1 className="text-5xl md:text-8xl font-serif text-white mb-8 leading-tight">Every Strand Tells a <span className="italic">Story</span></h1>
-                            <p className="text-xl text-slate-200 mb-10 max-w-2xl mx-auto leading-relaxed">Hand-crafted pasta, locally sourced ingredients, and generations of secret family recipes brought to your table.</p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-amber-700 transition-all transform hover:scale-105 shadow-xl">Book a Table</button>
-                                <button onClick={() => scrollTo('menu')} className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition-all">View Menu</button>
+                            <span className="text-amber-400 font-bold tracking-[0.3em] uppercase mb-6 block animate-fade-in text-sm">Experience Authentic Italian Tradition</span>
+                            <h1 className="text-6xl md:text-9xl font-serif text-white mb-10 leading-[0.9] animate-slide-up">Every Strand <br/> Tells a <span className="italic">Story</span></h1>
+                            <p className="text-lg md:text-xl text-slate-200 mb-12 max-w-2xl mx-auto leading-relaxed font-light">Hand-crafted pasta, locally sourced ingredients, and generations of secret family recipes brought to your table daily.</p>
+                            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                                <button onClick={() => setIsBookingOpen(true)} className="bg-amber-600 text-white px-12 py-5 rounded-full text-lg font-black hover:bg-amber-700 transition-all transform hover:scale-105 shadow-2xl active:scale-95">Book a Table</button>
+                                <button onClick={() => scrollTo('menu')} className="bg-white/10 backdrop-blur-xl text-white border border-white/40 px-12 py-5 rounded-full text-lg font-black hover:bg-white/20 transition-all active:scale-95">View Menu</button>
                             </div>
                         </div>
-                        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce-slow">
-                            <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce-slow opacity-50">
+                            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                         </div>
                     </section>
 
                     {/* About Section */}
-                    <section id="about" className="py-24 bg-white">
-                        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-                            <div className="relative">
-                                <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800" className="rounded-[3rem] shadow-2xl" alt="Chef Rossi" />
-                                <div className="absolute -bottom-8 -right-8 bg-amber-800 text-white p-8 rounded-3xl shadow-xl hidden lg:block">
-                                    <p className="text-4xl font-serif font-bold">15+</p>
-                                    <p className="text-amber-200 text-sm font-semibold tracking-wider uppercase">Years of Passion</p>
+                    <section id="about" className="py-32 bg-white">
+                        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-20 items-center">
+                            <div className="relative group">
+                                <div className="absolute -inset-4 bg-amber-50 rounded-[4rem] -z-10 group-hover:bg-amber-100/50 transition-colors"></div>
+                                <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800" className="rounded-[3rem] shadow-2xl transform transition-transform group-hover:scale-[1.02]" alt="Chef Rossi" />
+                                <div className="absolute -bottom-10 -right-10 bg-amber-800 text-white p-10 rounded-[2.5rem] shadow-2xl hidden lg:block">
+                                    <p className="text-5xl font-serif font-bold mb-1">15+</p>
+                                    <p className="text-amber-200 text-xs font-black tracking-widest uppercase">Years of Pasta Mastery</p>
                                 </div>
                             </div>
-                            <div>
-                                <span className="text-amber-800 font-bold uppercase tracking-widest text-sm mb-4 block">Our Story</span>
-                                <h2 className="text-4xl md:text-5xl font-serif mb-8 leading-tight">Tradition meets the modern plate.</h2>
-                                <p className="text-lg text-slate-600 mb-6 leading-relaxed">Founded in 2008 by Chef Marco Rossi, The Pasta Express began with a simple mission: to bring the authentic, sun-drenched flavors of Southern Italy to the local neighborhood.</p>
-                                <p className="text-lg text-slate-600 mb-10 leading-relaxed">We believe that the best pasta is simple pasta. That's why we use only four ingredients for our dough: double-zero flour, pasture-raised eggs, sea salt, and passion.</p>
-                                <button onClick={() => setIsBookingOpen(true)} className="text-amber-800 font-bold border-b-2 border-amber-800 pb-1 hover:text-amber-900 hover:border-amber-900 transition-colors">Reserve your experience →</button>
+                            <div className="space-y-8">
+                                <span className="text-amber-800 font-black uppercase tracking-[0.25em] text-xs">Our Heritage</span>
+                                <h2 className="text-5xl md:text-7xl font-serif text-slate-900 leading-[1.1]">Where Tradition meets the <span className="italic">modern</span> plate.</h2>
+                                <p className="text-xl text-slate-600 leading-relaxed font-light">Founded in 2008 by Chef Marco Rossi, The Pasta Express began with a simple mission: to bring the authentic, sun-drenched flavors of Southern Italy to our local neighborhood.</p>
+                                <p className="text-xl text-slate-600 leading-relaxed font-light">We believe that the best pasta is simple pasta. That's why we use only four ingredients for our dough: double-zero flour, pasture-raised eggs, sea salt, and sheer passion.</p>
+                                <button onClick={() => setIsBookingOpen(true)} className="group flex items-center gap-3 text-amber-800 font-black text-sm uppercase tracking-widest py-2 border-b-2 border-amber-800 hover:text-amber-900 transition-all">
+                                    Reserve your table <span className="group-hover:translate-x-2 transition-transform">→</span>
+                                </button>
                             </div>
                         </div>
                     </section>
 
                     {/* Menu Section */}
-                    <section id="menu" className="py-24 bg-[#faf9f6]">
+                    <section id="menu" className="py-32 bg-[#faf9f6]">
                         <div className="max-w-7xl mx-auto px-4 text-center">
-                            <h2 className="text-4xl md:text-5xl font-serif mb-4">Our Seasonal Menu</h2>
-                            <div className="w-24 h-1 bg-amber-600 mx-auto rounded-full mb-12"></div>
+                            <div className="max-w-2xl mx-auto mb-20">
+                                <h2 className="text-5xl md:text-7xl font-serif mb-6">Our Seasonal Menu</h2>
+                                <p className="text-slate-500 font-light italic">"Everything you see here is made from scratch every single morning using ingredients from local farmers."</p>
+                            </div>
                             
-                            <div className="flex justify-center gap-4 mb-16 overflow-x-auto hide-scrollbar pb-2">
+                            <div className="flex justify-center gap-4 mb-20 overflow-x-auto hide-scrollbar pb-4">
                                 {['Starters', 'Mains', 'Desserts'].map(cat => (
-                                    <button key={cat} onClick={() => setActiveTab(cat)} className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === cat ? 'bg-amber-800 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'}`}>{cat}</button>
+                                    <button key={cat} onClick={() => setActiveTab(cat)} className={`px-10 py-4 rounded-full font-black text-sm uppercase tracking-widest transition-all ${activeTab === cat ? 'bg-amber-800 text-white shadow-2xl shadow-amber-200' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'}`}>{cat}</button>
                                 ))}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-12 text-left">
                                 {MENU_ITEMS.filter(i => i.category === activeTab).map(item => (
-                                    <div key={item.id} className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-lg transition-all flex flex-col sm:flex-row gap-6 group">
-                                        <div className="sm:w-40 sm:h-40 h-48 w-full overflow-hidden rounded-2xl flex-shrink-0">
-                                            <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={item.name} />
+                                    <div key={item.id} className="bg-white p-8 rounded-[3rem] shadow-sm hover:shadow-2xl transition-all flex flex-col sm:flex-row gap-8 group">
+                                        <div className="sm:w-48 sm:h-48 h-56 w-full overflow-hidden rounded-[2rem] flex-shrink-0 shadow-lg">
+                                            <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
                                         </div>
                                         <div className="flex-grow flex flex-col justify-center">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-2xl font-serif font-bold text-slate-900">{item.name}</h3>
-                                                <span className="text-xl font-bold text-amber-800">{item.price}</span>
+                                            <div className="flex justify-between items-start mb-3">
+                                                <h3 className="text-3xl font-serif font-bold text-slate-900 leading-tight">{item.name}</h3>
+                                                <span className="text-2xl font-black text-amber-800 pl-4">{item.price}</span>
                                             </div>
-                                            <p className="text-slate-500 text-sm leading-relaxed mb-4">{item.description}</p>
-                                            <div className="flex gap-2">
-                                                {item.tags?.map(t => <span key={t} className="text-[10px] bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">{t}</span>)}
+                                            <p className="text-slate-500 text-sm leading-relaxed mb-6 font-light">{item.description}</p>
+                                            <div className="flex gap-2 flex-wrap">
+                                                {item.tags?.map(t => <span key={t} className="text-[10px] bg-amber-50 text-amber-800 px-3 py-1.5 rounded-lg font-black uppercase tracking-widest">{t}</span>)}
                                             </div>
                                         </div>
                                     </div>
@@ -314,22 +335,25 @@
                     </section>
 
                     {/* Footer */}
-                    <footer className="bg-slate-900 py-20 text-slate-400 text-center">
-                        <div className="max-w-7xl mx-auto px-4">
-                            <h3 className="text-3xl font-serif text-white mb-6">The Pasta Express</h3>
-                            <div className="flex justify-center space-x-8 mb-10">
+                    <footer className="bg-slate-950 py-32 text-slate-400 text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-800 to-transparent"></div>
+                        <div className="max-w-7xl mx-auto px-4 relative z-10">
+                            <h3 className="text-4xl font-serif text-white mb-10 tracking-tight">The Pasta Express</h3>
+                            <div className="flex justify-center flex-wrap gap-8 mb-16 text-xs font-black uppercase tracking-[0.2em]">
                                 <a href="#" className="hover:text-white transition-colors">Instagram</a>
                                 <a href="#" className="hover:text-white transition-colors">Facebook</a>
                                 <a href="#" className="hover:text-white transition-colors">TripAdvisor</a>
+                                <a href="#" className="hover:text-white transition-colors">Contact</a>
                             </div>
-                            <div className="border-t border-slate-800 pt-10">
-                                <p className="text-sm">© {new Date().getFullYear()} The Pasta Express. Locally sourced, hand-crafted with love.</p>
+                            <div className="border-t border-white/5 pt-12 max-w-xl mx-auto">
+                                <p className="text-sm font-light mb-2">Designed for the lovers of fine Italian craftsmanship.</p>
+                                <p className="text-[10px] uppercase tracking-widest text-slate-600">© {new Date().getFullYear()} The Pasta Express. Crafted with amoré in Italy.</p>
                             </div>
                         </div>
                     </footer>
 
                     <ReservationModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
-                    <AiConcierge />
+                    <AiAssistant />
                 </div>
             );
         };
