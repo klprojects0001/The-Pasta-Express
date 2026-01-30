@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,14 +78,38 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setStatus('submitting');
-                setTimeout(() => {
+
+                try {
+                    // Actual Google Apps Script Web App URL
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbxIXmt1xDIfAabASeQyYv8K_BhlVJ530jyZeyR9olG-hKMjvJZ7g-GjTXr9VQPSYNwZnA/exec';
+                    
+                    const formDataToSend = new FormData();
+                    Object.keys(formData).forEach(key => formDataToSend.append(key, formData[key]));
+
+                    // Using no-cors to handle the potential redirect from Google Scripts
+                    await fetch(scriptURL, { 
+                        method: 'POST', 
+                        body: formDataToSend,
+                        mode: 'no-cors' 
+                    });
+                    
                     setStatus('success');
                     setFormData({ name: '', date: '', time: '19:00', guests: 2, remarks: '' });
                     setTimeout(() => { setStatus('idle'); onClose(); }, 2500);
-                }, 1500);
+                } catch (error) {
+                    console.error('Error!', error.message);
+                    alert('Something went wrong. Please try again.');
+                    setStatus('idle');
+                }
             };
 
-            const handleChange = (e) => setFormData({...formData, [e.target.name]: e.target.value});
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ 
+                    ...prev, 
+                    [name]: name === 'guests' ? parseInt(value) : value 
+                }));
+            };
 
             return (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -139,6 +162,10 @@
                                         <select name="guests" value={formData.guests} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none">
                                             {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
                                         </select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Remarks</label>
+                                        <textarea name="remarks" value={formData.remarks} onChange={handleChange} placeholder="Special request?" rows={2} className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-amber-800 transition-all text-sm outline-none resize-none" />
                                     </div>
                                     <button disabled={status === 'submitting'} className="w-full bg-amber-800 text-white py-4 rounded-xl font-bold hover:bg-amber-900 transition-all shadow-xl hover:shadow-amber-200 disabled:opacity-50 mt-4">
                                         {status === 'submitting' ? 'Confirming...' : 'Confirm Booking'}
