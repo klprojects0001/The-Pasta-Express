@@ -23,7 +23,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Glassmorphism utility */
         .glass {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
@@ -80,17 +79,15 @@
                 setStatus('submitting');
 
                 try {
-                    // UPDATED Google Apps Script Web App URL
                     const scriptURL = 'https://script.google.com/macros/s/AKfycbymOg-S7XPFgA5begG8Z-M9gkLnqt3a2ERyunm93tsFdIN58e_8G7D507pcr_DfHjs95Q/exec';
                     
-                    const formDataToSend = new FormData();
-                    Object.keys(formData).forEach(key => formDataToSend.append(key, formData[key]));
+                    // Convert formData into URL parameters for better compatibility with Apps Script
+                    const params = new URLSearchParams();
+                    Object.keys(formData).forEach(key => params.append(key, formData[key]));
 
-                    // Using fetch with the new URL
-                    await fetch(scriptURL, { 
-                        method: 'POST', 
-                        body: formDataToSend,
-                        mode: 'no-cors' // Essential for Google Scripts to avoid CORS errors on redirect
+                    await fetch(`${scriptURL}?${params.toString()}`, { 
+                        method: 'POST',
+                        mode: 'no-cors' 
                     });
                     
                     setStatus('success');
@@ -195,10 +192,10 @@
                 setLoading(true);
 
                 try {
-                    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                    const ai = new GoogleGenAI({ apiKey: "YOUR_API_KEY_HERE" });
                     const menuContext = JSON.stringify(MENU_ITEMS.map(m => ({ name: m.name, desc: m.description })));
                     const response = await ai.models.generateContent({
-                        model: "gemini-3-flash-preview",
+                        model: "gemini-pro",
                         contents: userMsg,
                         config: {
                             systemInstruction: `You are 'Pasta Buddy', the AI concierge for 'The Pasta Express'. Use this menu: ${menuContext}. Enthusiastically recommend ONE dish based on user craving. Keep it brief.`,
